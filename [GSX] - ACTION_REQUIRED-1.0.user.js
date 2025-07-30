@@ -5,7 +5,10 @@
 // @author       Sebastian Zborowski
 // @match        https://gsx2.apple.com/
 // @include      https://gsx2.apple.com/*
+// @updateURL    https://raw.githubusercontent.com/sebastian-zborowski/gsx_-_action_required/main/%5BGSX%5D%20-%20ACTION_REQUIRED-1.0.user.js
+// @downloadURL  https://raw.githubusercontent.com/sebastian-zborowski/gsx_-_action_required/main/%5BGSX%5D%20-%20ACTION_REQUIRED-1.0.user.js
 // @require      https://code.jquery.com/jquery-3.7.1.min.js
+// @grant        none
 // ==/UserScript==
 
 //Disclaimer:
@@ -13,7 +16,7 @@
 //nie przetwarza danych osobowych, a także nie zmienia podstawowego działania strony. Skrypt dodaje kilka automatyzacji, skrótów oraz modyfikacje wizualne, które mają na celu
 //usprawnienie i ułatwienie korzystania z serwisu.
 
-//Ostatnia aktualizacja:
+//Ostatnia aktualizacja: 30.07.2025
 
 (function () {
     'use strict';
