@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         [GSX] - ACTION_REQUIRED
-// @version      1.1
+// @version      1.2
 // @description  Sprawdza dane z maila ACTION REQUIRED i generuje wiadomości do serwisantów
 // @author       Sebastian Zborowski
 // @match        https://gsx2.apple.com/
