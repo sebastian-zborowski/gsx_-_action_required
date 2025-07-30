@@ -9,6 +9,8 @@
 // @downloadURL  https://raw.githubusercontent.com/sebastian-zborowski/gsx_-_action_required/main/%5BGSX%5D%20-%20ACTION_REQUIRED-1.0.user.js
 // @require      https://code.jquery.com/jquery-3.7.1.min.js
 // @grant        none
+// @source       https://github.com/sebastian-zborowski
+
 // ==/UserScript==
 
 //Disclaimer:
