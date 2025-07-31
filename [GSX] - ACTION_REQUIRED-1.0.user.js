@@ -25,7 +25,7 @@
 
     document.body.style.backgroundColor = "#555";
     const DELAY_MS = 3000;
-    const gnumToName = {}; // slownik: Gnum -> imie
+    const gnumToName = {}; // słownik: Gnum -> imię
     let codes = [];
 
     setTimeout(() => {
@@ -36,8 +36,8 @@
         triggerBtn.id = 'action-required-trigger';
         triggerBtn.textContent = 'ACTION REQUIRED';
         triggerBtn.style.cssText = 'margin-left:12px;padding:4px 8px;background:#444;color:#eee;border:1px solid #666;border-radius:3px;font-size:12px;cursor:pointer;opacity:0.8;';
-        triggerBtn.addEventListener('mouseenter', () => triggerBtn.style.opacity = '1');
-        triggerBtn.addEventListener('mouseleave', () => triggerBtn.style.opacity = '0.8');
+        triggerBtn.addEventListener('mouseenter', () => { triggerBtn.style.opacity = '1'; });
+        triggerBtn.addEventListener('mouseleave', () => { triggerBtn.style.opacity = '0.8'; });
 
         triggerBtn.addEventListener('click', () => {
             triggerBtn.disabled = true;
@@ -51,26 +51,31 @@
                 const reloadBtn = document.createElement('button');
                 reloadBtn.textContent = 'Przeładuj';
                 reloadBtn.style.cssText = 'margin-left:12px;padding:4px 8px;background:#444;color:#eee;border:1px solid #666;border-radius:3px;font-size:12px;cursor:pointer;opacity:0.8;';
-                reloadBtn.addEventListener('mouseenter', () => reloadBtn.style.opacity = '1');
-                reloadBtn.addEventListener('mouseleave', () => reloadBtn.style.opacity = '0.8');
+                reloadBtn.addEventListener('mouseenter', () => { reloadBtn.style.opacity = '1'; });
+                reloadBtn.addEventListener('mouseleave', () => { reloadBtn.style.opacity = '0.8'; });
 
                 const closeBtn = document.createElement('button');
                 closeBtn.textContent = 'Zamknij';
                 closeBtn.style.cssText = 'margin-left:12px;padding:4px 8px;background:#444;color:#eee;border:1px solid #666;border-radius:3px;font-size:12px;cursor:pointer;opacity:0.8;';
-                closeBtn.addEventListener('mouseenter', () => closeBtn.style.opacity = '1');
-                closeBtn.addEventListener('mouseleave', () => closeBtn.style.opacity = '0.8');
+                closeBtn.addEventListener('mouseenter', () => { closeBtn.style.opacity = '1'; });
+                closeBtn.addEventListener('mouseleave', () => { closeBtn.style.opacity = '0.8'; });
 
-                const footer = document.querySelector('.ac-gf-footer .left');
                 footer.appendChild(reloadBtn);
+                footer.appendChild(closeBtn);
 
-                function resetUI() {
-                    const container = document.querySelector('div[style*="Szybkie sprawdzanie ACTION REQUIRED"]');
+                reloadBtn.onclick = () => {
+                    location.reload();
+                };
+
+                closeBtn.onclick = () => {
+                    // Reset UI and show triggerBtn again
+                    const container = document.querySelector('div[data-action-required-container]');
                     if (container) container.remove();
                     const iframesContainer = document.getElementById('iframes-container');
                     if (iframesContainer) iframesContainer.remove();
                     const statusText = document.getElementById('current-check-status');
                     if (statusText) statusText.remove();
-                    const progressBarWrapper = document.querySelector('div[style*="progressBarWrapper"]');
+                    const progressBarWrapper = document.getElementById('progress-bar-wrapper');
                     if (progressBarWrapper) progressBarWrapper.remove();
                     reloadBtn.remove();
                     closeBtn.remove();
@@ -78,11 +83,11 @@
                     triggerBtn.disabled = false;
                     triggerBtn.textContent = 'ACTION REQUIRED';
                     codes = [];
-                    Object.keys(gnumToName).forEach(key => delete gnumToName[key]);
-                }
-
-                reloadBtn.onclick = () => {
-                    setTimeout(() => window.location.href = window.location.href, 100);
+                    for (const key in gnumToName) {
+                        if (Object.hasOwnProperty.call(gnumToName, key)) {
+                            delete gnumToName[key];
+                        }
+                    }
                 };
 
                 triggerBtn.textContent = 'Wczytano.';
@@ -90,52 +95,76 @@
             }, 500);
         });
 
-
         footer.appendChild(triggerBtn);
     }, DELAY_MS);
 
     function addInlineParser() {
         const container = document.createElement('div');
-        container.style.cssText = 'position:relative;padding:20px;border-top:3px solid #0275d8;background:#000;color:white;width:80%; max-width: 80vw; margin:20px auto;font-family:Arial,sans-serif;';
+        container.setAttribute('data-action-required-container', 'true');
+        container.style.cssText = 'position:relative;padding:20px;border-top:3px solid #0275d8;background:#000;color:white;width:80%;max-width:80vw;margin:20px auto;font-family:Arial,sans-serif;';
 
+        // Tworzymy nagłówek h2
+        const h2 = document.createElement('h2');
+        h2.style.color = '#00bfff';
+        h2.textContent = 'Szybkie sprawdzanie ACTION REQUIRED';
+        container.appendChild(h2);
+        container.appendChild(document.createElement('br'));
 
-        container.innerHTML = `
-        <h2 style="color:#00bfff;">Szybkie sprawdzanie ACTION REQUIRED</h2><br>
-        <textarea id="input" placeholder="Wklej tutaj tabelkę z maila" style="width:100%;height:150px;font-family:monospace;font-size:14px;padding:8px;background:#111;color:white;border:1px solid #444;box-sizing:border-box;"></textarea><br>
-        <div id="buttons-wrapper" style="margin-top:10px; display:flex; justify-content:center; gap:10px; flex-wrap: wrap;">
-            <button id="extract" style="padding:8px 16px;background:gray;color:white;border:none;border-radius:4px;font-weight:bold;cursor:pointer;">Pokaż numery</button>
-            <button id="fetchAll" style="padding:8px 16px;background:gray;color:white;border:none;border-radius:4px;font-weight:bold;cursor:pointer; display:none;">Pobierz wszystkie PO</button>
-        </div>
-        <div id="results" style="margin-top:20px;white-space:pre-wrap;font-family:monospace;"></div>
-    `;
+        // Tworzymy textarea
+        const textarea = document.createElement('textarea');
+        textarea.id = 'input';
+        textarea.placeholder = 'Wklej tutaj tabelkę z maila';
+        textarea.style.cssText = 'width:100%;height:150px;font-family:monospace;font-size:14px;padding:8px;background:#111;color:white;border:1px solid #444;box-sizing:border-box;';
+        container.appendChild(textarea);
+        container.appendChild(document.createElement('br'));
 
-        document.body.appendChild(container);
+        // Kontener na przyciski
+        const buttonsWrapper = document.createElement('div');
+        buttonsWrapper.id = 'buttons-wrapper';
+        buttonsWrapper.style.cssText = 'margin-top:10px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;';
+        container.appendChild(buttonsWrapper);
 
-        const input = container.querySelector('#input');
-        const extractBtn = container.querySelector('#extract');
-        const fetchAllBtn = container.querySelector('#fetchAll');
-        const buttonsWrapper = container.querySelector('#buttons-wrapper');
-        const resultsDiv = container.querySelector('#results');
+        // Przycisk "Pokaż numery"
+        const extractBtn = document.createElement('button');
+        extractBtn.id = 'extract';
+        extractBtn.textContent = 'Pokaż numery';
+        extractBtn.style.cssText = 'padding:8px 16px;background:gray;color:white;border:none;border-radius:4px;font-weight:bold;cursor:pointer;';
+        buttonsWrapper.appendChild(extractBtn);
 
+        // Przycisk "Pobierz wszystkie PO" (ukryty domyślnie)
+        const fetchAllBtn = document.createElement('button');
+        fetchAllBtn.id = 'fetchAll';
+        fetchAllBtn.textContent = 'Pobierz wszystkie PO';
+        fetchAllBtn.style.cssText = 'padding:8px 16px;background:gray;color:white;border:none;border-radius:4px;font-weight:bold;cursor:pointer;display:none;';
+        buttonsWrapper.appendChild(fetchAllBtn);
+
+        // Przycisk "Wiadomość zbiorcza" (ukryty)
         const bulkMsgBtn = document.createElement('button');
         bulkMsgBtn.textContent = '📩 Wiadomość zbiorcza';
         bulkMsgBtn.style.cssText = 'padding:8px 16px;background:gray;color:white;border:none;border-radius:4px;font-weight:bold;cursor:pointer;display:none;';
-
         buttonsWrapper.appendChild(bulkMsgBtn);
+
+        // Div na wyniki
+        const resultsDiv = document.createElement('div');
+        resultsDiv.id = 'results';
+        resultsDiv.style.cssText = 'margin-top:20px;white-space:pre-wrap;font-family:monospace;';
+        container.appendChild(resultsDiv);
+
+        document.body.appendChild(container);
 
         let codes = [];
 
         extractBtn.onclick = () => {
-            const matches = input.value.match(/G[A-Z0-9]{9}/gi);
+            const matches = textarea.value.match(/G[A-Z0-9]{9}/gi);
             resultsDiv.innerHTML = '';
             fetchAllBtn.style.display = 'none';
             bulkMsgBtn.style.display = 'none';
             codes = [];
 
-            if (matches?.length) {
+            if (matches && matches.length) {
                 codes = [...new Set(matches)];
                 resultsDiv.style.display = 'grid';
-                resultsDiv.style.gridTemplateColumns = 'repeat(4, 1fr)';//ilość elementów iframe sprawdzanych na raz
+                resultsDiv.style.gridTemplateColumns = 'repeat(4, 1fr)';
                 resultsDiv.style.gap = '10px';
                 resultsDiv.style.whiteSpace = 'normal';
 
@@ -143,7 +172,7 @@
                     const line = document.createElement('div');
                     line.className = 'result-line';
                     line.dataset.code = code;
-                    line.textContent = `${code}: X`;
+                    line.textContent = code + ': X';
 
                     line.style.border = 'none';
                     line.style.padding = '4px 6px';
@@ -162,10 +191,11 @@
             }
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         };
-        const fetchCodeData = (code) => {
+
+        function fetchCodeData(code) {
             return new Promise(resolve => {
-                const line = resultsDiv.querySelector(`.result-line[data-code="${code}"]`);
-                line.textContent = `${code}: WCZYTUJE...`;
+                const line = resultsDiv.querySelector('.result-line[data-code="' + code + '"]');
+                if (line) line.textContent = code + ': WCZYTUJE...';
 
                 let statusText = document.getElementById('current-check-status');
                 if (!statusText) {
@@ -174,14 +204,14 @@
                     statusText.style.cssText = 'text-align:center;margin:10px auto 5px auto;font-weight:bold;color:#00bfff;font-size:16px;';
                     document.body.appendChild(statusText);
                 }
-                statusText.textContent = ``;
+                statusText.textContent = 'Sprawdzam ' + code + '...';
 
                 const currentDate = Date.now();
                 const iframeId = 'current-check-iframe-' + currentDate;
 
                 const wrapper = document.createElement('div');
                 wrapper.id = 'iframe-wrapper-' + currentDate;
-                wrapper.style.cssText = 'display:inline-block;vertical-align:top;width:18%;padding:5px;margin:5px;margin-bottom:2%;border:1px solid #00bfff;background:#111;text-align:center;border-radius:4px;';
+                wrapper.style.cssText = 'display:inline-block;vertical-align:top;width:18%;padding:5px;margin:5px 5px 2% 5px;border:1px solid #00bfff;background:#111;text-align:center;border-radius:4px;';
 
                 const header = document.createElement('div');
                 header.textContent = code;
@@ -194,18 +224,17 @@
 
                 const iframe = document.createElement('iframe');
                 iframe.id = iframeId;
-                iframe.src = `https://gsx2.apple.com/repairs/${code}`;
+                iframe.src = 'https://gsx2.apple.com/repairs/' + code;
                 iframe.style.cssText = 'width:100%;height:15vh;border:2px solid #00bfff;border-radius:3px;';
 
                 wrapper.appendChild(header);
                 wrapper.appendChild(timerDiv);
                 wrapper.appendChild(iframe);
 
-                const iframesContainerId = 'iframes-container';
-                let iframesContainer = document.getElementById(iframesContainerId);
+                let iframesContainer = document.getElementById('iframes-container');
                 if (!iframesContainer) {
                     iframesContainer = document.createElement('div');
-                    iframesContainer.id = iframesContainerId;
+                    iframesContainer.id = 'iframes-container';
                     iframesContainer.style.cssText = 'width:100%;display:flex;flex-wrap:wrap;justify-content:center;margin:10px auto;';
                     document.body.insertBefore(iframesContainer, statusText.nextSibling);
                 }
@@ -215,7 +244,7 @@
                 let secondsElapsed = 0;
                 const timerInterval = setInterval(() => {
                     secondsElapsed++;
-                    timerDiv.textContent = `Czas ładowania: ${secondsElapsed}s`;
+                    timerDiv.textContent = 'Czas ładowania: ' + secondsElapsed + 's';
 
                     if (secondsElapsed <= 3) {
                         timerDiv.style.color = 'lightgreen';
@@ -229,23 +258,23 @@
                         clearInterval(timerInterval);
                         clearInterval(checkInterval);
                         wrapper.remove();
-                        line.textContent = `${code}: BŁĄD - przekroczono czas ładowania`;
+                        if (line) line.textContent = code + ': BŁĄD - przekroczono czas ładowania';
                         statusText.textContent = '';
                         resolve({ code, value: 'BŁĄD - przekroczono czas ładowania' });
                     }
                 }, 1000);
 
-
                 const checkInterval = setInterval(() => {
                     try {
                         const doc = iframe.contentDocument || iframe.contentWindow.document;
+                        if (!doc) return;
 
                         const statusSpan = doc.querySelector('span.objectId.header-4[aria-label="Repair status - Unit Returned Replaced"]');
                         if (statusSpan) {
                             clearInterval(timerInterval);
                             clearInterval(checkInterval);
                             wrapper.remove();
-                            line.textContent = `${code}: Unit Returned Replaced`;
+                            if (line) line.textContent = code + ': Unit Returned Replaced';
                             statusText.textContent = '';
                             gnumToName[code] = 'Unit Returned Replaced';
                             resolve({ code, value: 'Unit Returned Replaced' });
@@ -253,14 +282,13 @@
                             return;
                         }
 
-
                         const tech = doc.querySelector('div.v-center.repair-tech__wrapper h2.objectId');
                         if (tech && tech.textContent.trim().length > 0) {
                             clearInterval(timerInterval);
                             clearInterval(checkInterval);
                             wrapper.remove();
                             const status = tech.textContent.trim();
-                            line.textContent = `${code}: ${status}`;
+                            if (line) line.textContent = code + ': ' + status;
                             statusText.textContent = '';
                             gnumToName[code] = status;
                             resolve({ code, value: status });
@@ -274,7 +302,7 @@
                             clearInterval(checkInterval);
                             wrapper.remove();
                             const status = 'Closed and completed';
-                            line.textContent = `${code}: ${status}`;
+                            if (line) line.textContent = code + ': ' + status;
                             statusText.textContent = '';
                             gnumToName[code] = status;
                             resolve({ code, value: status });
@@ -282,12 +310,13 @@
                             return;
                         }
                     } catch (e) {
+                        // console.log('iframe access error:', e);
                     }
                 }, 500);
+
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             });
-        };
-
+        }
 
         fetchAllBtn.onclick = async () => {
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
@@ -296,14 +325,14 @@
             fetchAllBtn.disabled = true;
 
             const chunks = [];
-            const chunkSize = 4;
+            const chunkSize = 3;
             let results = [];
 
             for (let i = 0; i < codes.length; i += chunkSize) {
                 chunks.push(codes.slice(i, i + chunkSize));
             }
 
-            const delay = (ms) => new Promise(res => setTimeout(res, ms));
+            const delay = ms => new Promise(res => setTimeout(res, ms));
 
             let iframesContainer = document.getElementById('iframes-container');
             if (!iframesContainer) {
@@ -313,11 +342,14 @@
                 document.body.appendChild(iframesContainer);
             }
 
+            // Progress bar
             const progressBarWrapper = document.createElement('div');
+            progressBarWrapper.id = 'progress-bar-wrapper';
             progressBarWrapper.style.cssText = 'width:80%;margin:3vh auto;text-align:center;';
 
             const progressBar = document.createElement('div');
             progressBar.style.cssText = 'height:20px;background:#222;border:1px solid #555;border-radius:10px;overflow:hidden;';
+
             const progressFill = document.createElement('div');
             progressFill.style.cssText = 'height:100%;width:0%;background:#00bfff;transition:width 0.3s;';
             progressBar.appendChild(progressFill);
@@ -331,7 +363,6 @@
 
             iframesContainer.parentNode.insertBefore(progressBarWrapper, iframesContainer);
 
-
             let checkedCount = 0;
             const totalCount = codes.length;
 
@@ -342,14 +373,14 @@
                         const result = await fetchCodeData(code);
                         return result;
                     } catch (err) {
-                        const line = resultsDiv.querySelector(`.result-line[data-code="${code}"]`);
-                        if (line) line.textContent = `${code}: BŁĄD - ${err?.message || 'nieznany problem'}`;
-                        return { code, value: `BŁĄD - ${err?.message || 'nieznany problem'}` };
+                        const line = resultsDiv.querySelector('.result-line[data-code="' + code + '"]');
+                        if (line) line.textContent = code + ': BŁĄD - ' + (err?.message || 'nieznany problem');
+                        return { code, value: 'BŁĄD - ' + (err?.message || 'nieznany problem') };
                     } finally {
                         checkedCount++;
                         const percent = Math.min(100, Math.round((checkedCount / totalCount) * 100));
                         progressFill.style.width = percent + '%';
-                        progressText.textContent = `${percent}% (${checkedCount} z ${totalCount})`;
+                        progressText.textContent = percent + '% (' + checkedCount + ' z ' + totalCount + ')';
                     }
                 }));
 
@@ -359,12 +390,12 @@
             await delay(500);
 
             progressFill.style.width = '100%';
-            progressText.textContent = `GOTOWE (${totalCount} z ${totalCount})`;
+            progressText.textContent = 'GOTOWE (' + totalCount + ' z ' + totalCount + ')';
             setTimeout(() => {
                 progressBarWrapper.remove();
             }, 2000);
 
-
+            // Grupowanie wyników
             const grouped = {};
             results.forEach(r => {
                 if (!grouped[r.value]) grouped[r.value] = [];
@@ -387,16 +418,18 @@
                 block.style.border = '1px solid #00bfff';
                 block.style.borderRadius = '5px';
                 block.style.padding = '10px';
+                block.style.position = 'relative';
+                block.style.paddingBottom = '60px';
 
                 const linesGrid = document.createElement('div');
                 linesGrid.style.display = 'grid';
-                linesGrid.style.gridTemplateColumns = 'repeat(4, 1fr)'; // Ilość kolumnz numerami napraw
+                linesGrid.style.gridTemplateColumns = 'repeat(4, 1fr)';
                 linesGrid.style.gap = '10px';
 
                 entries.forEach(r => {
                     const line = document.createElement('div');
                     line.className = 'result-line';
-                    line.textContent = `${r.code}: ${r.value}`;
+                    line.textContent = r.code + ': ' + r.value;
                     line.style.padding = '4px 6px';
                     line.style.borderRadius = '3px';
                     linesGrid.appendChild(line);
@@ -404,44 +437,12 @@
 
                 block.appendChild(linesGrid);
 
-                block.style.position = 'relative';
-                block.style.paddingBottom = '60px';
-
                 const buttonsContainer = document.createElement('div');
-                buttonsContainer.style.cssText = `
-    position: absolute;
-    bottom: 10px;
-    left: 0;
-    right: 0;
-    margin: 0 auto;
-    width: 100%;
-    max-width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;  /* center buttons horizontally */
-    gap: 10px;
-    box-sizing: border-box; /* important to contain padding */
-    padding: 0 10px; /* optional padding inside */
-`;
+                buttonsContainer.style.cssText = 'position:absolute;bottom:10px;left:0;right:0;margin:0 auto;width:100%;max-width:100%;display:flex;flex-direction:column;align-items:center;gap:10px;box-sizing:border-box;padding:0 10px;';
 
                 const copyBtn = document.createElement('button');
-                copyBtn.textContent = `KOPIUJ: ${group}`;
-                copyBtn.style.cssText = `
-    padding: 6px 12px;
-    background: #00bfff;
-    color: black;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    width: 100%;  /* fill container width */
-    max-width: 400px; /* optional max width */
-    height: 36px;
-    font-weight: bold;
-    white-space: normal;
-`;
-
-                buttonsContainer.appendChild(copyBtn);
-                block.appendChild(buttonsContainer);
+                copyBtn.textContent = 'KOPIUJ: ' + group;
+                copyBtn.style.cssText = 'padding:6px 12px;background:#00bfff;color:black;border:none;border-radius:3px;cursor:pointer;width:100%;max-width:400px;height:36px;font-weight:bold;white-space:normal;';
 
                 copyBtn.onclick = () => {
                     const messagesByName = {};
@@ -454,12 +455,12 @@
                     let textToCopy = '';
                     for (const [name, codesSet] of Object.entries(messagesByName)) {
                         const codesList = Array.from(codesSet).join('\n');
-                        textToCopy += `Hej ${name},\nApple CSS poinformowało o naprawach:\n\n${codesList}\n\nRzuć proszę na to okiem ^^ \n\~nWiadomość wygenerowana automatycznie\n\n`;
+                        textToCopy += 'Hej ' + name + ',\nApple CSS poinformowało o naprawach:\n\n' + codesList + '\n\nRzuć proszę na to okiem ^^ \n~nWiadomość wygenerowana automatycznie\n\n';
                     }
 
                     navigator.clipboard.writeText(textToCopy).then(() => {
                         copyBtn.textContent = 'Skopiowano!';
-                        setTimeout(() => copyBtn.textContent = `KOPIUJ: ${group}`, 1500);
+                        setTimeout(() => { copyBtn.textContent = 'KOPIUJ: ' + group; }, 1500);
                     });
                 };
 
@@ -470,10 +471,10 @@
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             });
 
-
             bulkMsgBtn.style.display = 'inline-block';
             fetchAllBtn.disabled = false;
         };
+
         bulkMsgBtn.onclick = () => {
             const nameToCodes = {};
             Array.from(resultsDiv.querySelectorAll('.result-line')).forEach(div => {
@@ -489,14 +490,14 @@
 
             let listLines = '';
             for (const [name, entries] of Object.entries(nameToCodes)) {
-                listLines += `Serwisant: ${name}\n`;
-                entries.forEach(({ code, status }) => {
-                    listLines += `  ${code}\n`;
+                listLines += 'Serwisant: ' + name + '\n';
+                entries.forEach(({ code }) => {
+                    listLines += '  ' + code + '\n';
                 });
                 listLines += '\n';
             }
 
-            const message = `Cześć,\nPrzesłane naprawy należą kolejno do:\n\n${listLines}Osoby z listy zostały już poinformowane.~nWiadomość wygenerowana automatycznie\n\n`;
+            const message = 'Cześć,\nPrzesłane naprawy należą kolejno do:\n\n' + listLines + 'Osoby z listy zostały już poinformowane.~nWiadomość wygenerowana automatycznie\n\n';
 
             navigator.clipboard.writeText(message).then(() => {
                 bulkMsgBtn.textContent = 'Skopiowano!';
@@ -507,9 +508,7 @@
                 alert('Nie udało się skopiować do schowka. Spróbuj ponownie.');
             });
         };
-
     }
-
 
 // Kontrola wersji alert ---------------------------------------------------------
 (async function() {
