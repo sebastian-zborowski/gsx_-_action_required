@@ -514,11 +514,11 @@
 // Kontrola wersji alert ---------------------------------------------------------
 (async function() {
     const scriptList = [
-        { name: 'ACTION-REQUIRED', url: 'https://raw.githubusercontent.com/sebastian-zborowski/gsx_-_action_required/main/%5BGSX%5D%20-%20ACTION_REQUIRED-1.0.user.js' },
+        { name: 'ACTION_REQUIRED', url: 'https://raw.githubusercontent.com/sebastian-zborowski/gsx_-_action_required/main/%5BGSX%5D%20-%20ACTION_REQUIRED-1.0.user.js' },
     ];
 
     const currentVersions = {
-        PHOTO_PREVIEW: '1.0',
+        ACTION_REQUIRED: '1.0',
     };
 
     await Promise.all(scriptList.map(async script => {
