@@ -82,7 +82,7 @@
                 }
 
                 reloadBtn.onclick = () => {
-                    location.reload();
+                    setTimeout(() => window.location.href = window.location.href, 100);
                 };
 
                 triggerBtn.textContent = 'Wczytano.';
