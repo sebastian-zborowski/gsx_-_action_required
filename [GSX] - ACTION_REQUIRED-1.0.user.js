@@ -575,20 +575,23 @@
         const popup = document.createElement('div');
         popup.textContent = `🔔 Aktualizacja dostępna dla ${scriptName}: ${remote} (masz ${current})`;
         Object.assign(popup.style, {
-            position: 'fixed',
-            bottom: `${20 + index * 50}px`,
-            right: '20px',
-            backgroundColor: '#222',
-            color: '#fff',
-            padding: '12px 18px',
-            borderRadius: '8px',
-            fontSize: '14px',
-            zIndex: 9999 + index,
-            boxShadow: '0 0 10px rgba(0,0,0,0.3)',
-            cursor: 'pointer',
-            userSelect: 'none',
-            transition: 'opacity 0.3s ease',
-            opacity: '1',
+        position: 'fixed',
+        bottom: `${20 + index * 100}px`, 
+        left: '50%',
+        transform: 'translateX(-50%)',
+        backgroundColor: '#222',
+        color: '#fff',
+        padding: '24px 36px', 
+        borderRadius: '16px', 
+        fontSize: '18px', 
+        zIndex: 9999 + index,
+        boxShadow: '0 0 20px rgba(0,0,0,0.4)',
+        cursor: 'pointer',
+        userSelect: 'none',
+        transition: 'opacity 0.3s ease',
+        opacity: '1',
+        maxWidth: '90%',
+        textAlign: 'center',
         });
 
         popup.addEventListener('click', () => popup.remove());
