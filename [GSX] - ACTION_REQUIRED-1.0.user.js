@@ -18,7 +18,7 @@
 //nie przetwarza danych osobowych, a także nie zmienia podstawowego działania strony. Skrypt dodaje kilka automatyzacji, skrótów oraz modyfikacje wizualne, które mają na celu
 //usprawnienie i ułatwienie korzystania z serwisu.
 
-//Ostatnia aktualizacja: 30.07.2025
+//Ostatnia aktualizacja: 01.08.2025
 
 (function () {
     'use strict';
@@ -527,6 +527,15 @@
         { name: 'ADD_PARTS', url: 'https://raw.githubusercontent.com/sebastian-zborowski/gsx_-_add_parts/main/%5BGSX%5D%20-%20ADD_PARTS-1.0.user.js' },
     ];
 
+    const currentVersions = {
+        VERSION_CONTROL_SYSTEM: '1.0',
+        PASTE_LINK: '1.0',
+        INTERFACE_TWEAKS: '1.0',
+        PHOTO_PREVIEW: '0.8',
+        'ACTION-REQUIRED': '1.0',
+        ADD_PARTS: '1.0',
+    };
+
     await Promise.all(scriptList.map(async script => {
         try {
             const res = await fetch(script.url);
@@ -547,18 +556,22 @@
         }
     }));
 
-    try {
-        const storedStr = localStorage.getItem(SCRIPT_NAME);
-        if (!storedStr) throw new Error('Brak danych w localStorage');
+    let popupCount = 0;
+    scriptList.forEach(script => {
+        const storedStr = localStorage.getItem(script.name);
+        if (!storedStr) return;
+        try {
+            const data = JSON.parse(storedStr);
+            const remoteVer = data?.remote;
+            const currentVer = currentVersions[script.name] || '0.0';
 
-        const data = JSON.parse(storedStr);
-
-        if (data?.remote && compareVersions(data.remote, CURRENT_VERSION) > 0) {
-            showUpdatePopup(SCRIPT_NAME, CURRENT_VERSION, data.remote);
+            if (remoteVer && compareVersions(remoteVer, currentVer) > 0) {
+                showUpdatePopup(script.name, currentVer, remoteVer, popupCount++);
+            }
+        } catch(e) {
+            console.warn(`[UPDATE CHECK] Błąd sprawdzania wersji dla ${script.name}:`, e);
         }
-    } catch (e) {
-        console.warn(`[UPDATE CHECK] Błąd sprawdzania wersji dla ${SCRIPT_NAME}:`, e);
-    }
+    });
 
     function compareVersions(v1, v2) {
         const split1 = v1.split('.').map(Number);
@@ -573,29 +586,35 @@
         return 0;
     }
 
-    function showUpdatePopup(scriptName, current, remote) {
+    function showUpdatePopup(scriptName, current, remote, index) {
         const popup = document.createElement('div');
         popup.textContent = `🔔 Aktualizacja dostępna dla ${scriptName}: ${remote} (masz ${current})`;
         Object.assign(popup.style, {
             position: 'fixed',
-            bottom: '20px',
+            bottom: `${20 + index * 50}px`,
             right: '20px',
             backgroundColor: '#222',
             color: '#fff',
             padding: '12px 18px',
             borderRadius: '8px',
             fontSize: '14px',
-            zIndex: 9999,
+            zIndex: 9999 + index,
             boxShadow: '0 0 10px rgba(0,0,0,0.3)',
             cursor: 'pointer',
             userSelect: 'none',
+            transition: 'opacity 0.3s ease',
+            opacity: '1',
         });
 
         popup.addEventListener('click', () => popup.remove());
 
         document.body.appendChild(popup);
 
-        setTimeout(() => popup.remove(), 15000);
+        setTimeout(() => {
+            // animacja znikania
+            popup.style.opacity = '0';
+            setTimeout(() => popup.remove(), 500);
+        }, 7500);
     }
 })();
 // ---------------------------------------------------------------------------------
