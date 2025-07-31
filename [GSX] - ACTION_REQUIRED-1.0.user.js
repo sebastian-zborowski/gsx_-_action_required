@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         [GSX] - ACTION_REQUIRED
-// @version      1.1
+// @version      1.0
 // @description  Sprawdza dane z maila ACTION REQUIRED i generuje wiadomości do serwisantów
 // @author       Sebastian Zborowski
 // @match        https://gsx2.apple.com/
@@ -22,11 +22,6 @@
 
 (function () {
     'use strict';
-
-// Kontrola wersji alert ---------------------------------------------------------
-    const SCRIPT_NAME = 'ACTION_REQUIRED';
-    const CURRENT_VERSION = '1.0';
-// -------------------------------------------------------------------------------
 
     document.body.style.backgroundColor = "#555";
     const DELAY_MS = 3000;
@@ -523,12 +518,7 @@
     ];
 
     const currentVersions = {
-        VERSION_CONTROL_SYSTEM: '1.0',
-        PASTE_LINK: '1.0',
-        INTERFACE_TWEAKS: '1.0',
-        PHOTO_PREVIEW: '0.8',
-        'ACTION-REQUIRED': '1.0',
-        ADD_PARTS: '1.0',
+        PHOTO_PREVIEW: '1.0',
     };
 
     await Promise.all(scriptList.map(async script => {
