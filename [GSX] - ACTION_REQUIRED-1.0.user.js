@@ -12,6 +12,13 @@
 // @source       https://github.com/sebastian-zborowski
 // ==/UserScript==
 
+//Disclaimer:
+//Niniejszy skrypt został utworzony metodą Vibecodingu. Nie ingeruje trwale w oryginalne strony internetowe, nie odwołuje się do danych prywatnych ani chronionych przepisami RODO,
+//nie przetwarza danych osobowych, a także nie zmienia podstawowego działania strony. Skrypt dodaje kilka automatyzacji, skrótów oraz modyfikacje wizualne, które mają na celu
+//usprawnienie i ułatwienie korzystania z serwisu.
+
+//Ostatni update: 01.08.2025 
+
 (function () {
     'use strict';
 
