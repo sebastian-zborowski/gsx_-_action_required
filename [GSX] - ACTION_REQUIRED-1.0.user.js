@@ -519,12 +519,7 @@
 // Kontrola wersji alert ---------------------------------------------------------
 (async function() {
     const scriptList = [
-        { name: 'VERSION_CONTROL_SYSTEM', url: 'https://raw.githubusercontent.com/sebastian-zborowski/fixably_-_version-control-system/b2b6d4cbfe5cef3fcb98d3e23d79657ff9eae127/%5BFIXABLY%5D%20-%20VERSION%20CONTROL%20SYSTEM-1.0.user.js' },
-        { name: 'PASTE_LINK', url: 'https://raw.githubusercontent.com/sebastian-zborowski/ast2_-_paste_link/main/%5BAST2%5D%20-%20PASTE_LINK-1.0.user.js' },
-        { name: 'INTERFACE_TWEAKS', url: 'https://raw.githubusercontent.com/sebastian-zborowski/fixably_-_interface_tweaks/main/%5BFIXABLY%5D%20-%20INTERFACE_TWEAKS-1.0.user.js' },
-        { name: 'PHOTO_PREVIEW', url: 'https://raw.githubusercontent.com/sebastian-zborowski/fixably_-_photo-preview/main/%5BFIXABLY%5D%20-%20PHOTO_PREVIEW-0.8.user.js' },
         { name: 'ACTION-REQUIRED', url: 'https://raw.githubusercontent.com/sebastian-zborowski/gsx_-_action_required/main/%5BGSX%5D%20-%20ACTION_REQUIRED-1.0.user.js' },
-        { name: 'ADD_PARTS', url: 'https://raw.githubusercontent.com/sebastian-zborowski/gsx_-_add_parts/main/%5BGSX%5D%20-%20ADD_PARTS-1.0.user.js' },
     ];
 
     const currentVersions = {
