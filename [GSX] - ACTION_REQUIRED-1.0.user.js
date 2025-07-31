@@ -3,25 +3,22 @@
 // @version      1.0
 // @description  Sprawdza dane z maila ACTION REQUIRED i generuje wiadomości do serwisantów
 // @author       Sebastian Zborowski
-// @match        https://gsx2.apple.com/
-// @include      https://gsx2.apple.com/*
+// @match        https://gsx2.apple.co*
+// @include      https://gsx2.apple.co*
 // @updateURL    https://raw.githubusercontent.com/sebastian-zborowski/gsx_-_action_required/main/%5BGSX%5D%20-%20ACTION_REQUIRED-1.0.user.js
 // @downloadURL  https://raw.githubusercontent.com/sebastian-zborowski/gsx_-_action_required/main/%5BGSX%5D%20-%20ACTION_REQUIRED-1.0.user.js
 // @require      https://code.jquery.com/jquery-3.7.1.min.js
 // @grant        none
 // @source       https://github.com/sebastian-zborowski
-
 // ==/UserScript==
-
-//Disclaimer:
-//Niniejszy skrypt został utworzony metodą Vibecodingu. Nie ingeruje trwale w oryginalne strony internetowe, nie odwołuje się do danych prywatnych ani chronionych przepisami RODO,
-//nie przetwarza danych osobowych, a także nie zmienia podstawowego działania strony. Skrypt dodaje kilka automatyzacji, skrótów oraz modyfikacje wizualne, które mają na celu
-//usprawnienie i ułatwienie korzystania z serwisu.
-
-//Ostatnia aktualizacja: 01.08.2025
 
 (function () {
     'use strict';
+
+  if (location.search.includes('dummy=1')) {
+    console.log('Dummy page detected, skrypt nie wykonuje się tutaj.');
+    return; // przerwij wykonanie skryptu jeżeli strona jest tylko UDMMY do pobrania danych > Zapobieganie zapchaniu pamięci safari
+  }
 
     document.body.style.backgroundColor = "#555";
     const DELAY_MS = 3000;
@@ -61,7 +58,6 @@
                 closeBtn.addEventListener('mouseleave', () => { closeBtn.style.opacity = '0.8'; });
 
                 footer.appendChild(reloadBtn);
-                footer.appendChild(closeBtn);
 
                 reloadBtn.onclick = () => {
                     location.reload();
@@ -71,8 +67,8 @@
                     // Reset UI and show triggerBtn again
                     const container = document.querySelector('div[data-action-required-container]');
                     if (container) container.remove();
-                    const iframesContainer = document.getElementById('iframes-container');
-                    if (iframesContainer) iframesContainer.remove();
+                    const objectsContainer = document.getElementById('objects-container');
+                    if (objectsContainer) objectsContainer.remove();
                     const statusText = document.getElementById('current-check-status');
                     if (statusText) statusText.remove();
                     const progressBarWrapper = document.getElementById('progress-bar-wrapper');
@@ -103,14 +99,12 @@
         container.setAttribute('data-action-required-container', 'true');
         container.style.cssText = 'position:relative;padding:20px;border-top:3px solid #0275d8;background:#000;color:white;width:80%;max-width:80vw;margin:20px auto;font-family:Arial,sans-serif;';
 
-        // Tworzymy nagłówek h2
         const h2 = document.createElement('h2');
         h2.style.color = '#00bfff';
         h2.textContent = 'Szybkie sprawdzanie ACTION REQUIRED';
         container.appendChild(h2);
         container.appendChild(document.createElement('br'));
 
-        // Tworzymy textarea
         const textarea = document.createElement('textarea');
         textarea.id = 'input';
         textarea.placeholder = 'Wklej tutaj tabelkę z maila';
@@ -118,33 +112,28 @@
         container.appendChild(textarea);
         container.appendChild(document.createElement('br'));
 
-        // Kontener na przyciski
         const buttonsWrapper = document.createElement('div');
         buttonsWrapper.id = 'buttons-wrapper';
         buttonsWrapper.style.cssText = 'margin-top:10px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;';
         container.appendChild(buttonsWrapper);
 
-        // Przycisk "Pokaż numery"
         const extractBtn = document.createElement('button');
         extractBtn.id = 'extract';
         extractBtn.textContent = 'Pokaż numery';
         extractBtn.style.cssText = 'padding:8px 16px;background:gray;color:white;border:none;border-radius:4px;font-weight:bold;cursor:pointer;';
         buttonsWrapper.appendChild(extractBtn);
 
-        // Przycisk "Pobierz wszystkie PO" (ukryty domyślnie)
         const fetchAllBtn = document.createElement('button');
         fetchAllBtn.id = 'fetchAll';
         fetchAllBtn.textContent = 'Pobierz wszystkie PO';
         fetchAllBtn.style.cssText = 'padding:8px 16px;background:gray;color:white;border:none;border-radius:4px;font-weight:bold;cursor:pointer;display:none;';
         buttonsWrapper.appendChild(fetchAllBtn);
 
-        // Przycisk "Wiadomość zbiorcza" (ukryty)
         const bulkMsgBtn = document.createElement('button');
         bulkMsgBtn.textContent = '📩 Wiadomość zbiorcza';
         bulkMsgBtn.style.cssText = 'padding:8px 16px;background:gray;color:white;border:none;border-radius:4px;font-weight:bold;cursor:pointer;display:none;';
         buttonsWrapper.appendChild(bulkMsgBtn);
 
-        // Div na wyniki
         const resultsDiv = document.createElement('div');
         resultsDiv.id = 'results';
         resultsDiv.style.cssText = 'margin-top:20px;white-space:pre-wrap;font-family:monospace;';
@@ -204,13 +193,11 @@
                     statusText.style.cssText = 'text-align:center;margin:10px auto 5px auto;font-weight:bold;color:#00bfff;font-size:16px;';
                     document.body.appendChild(statusText);
                 }
-                statusText.textContent = 'Sprawdzam ' + code + '...';
+                statusText.textContent = 'Sprawdzam...';
 
                 const currentDate = Date.now();
-                const iframeId = 'current-check-iframe-' + currentDate;
-
                 const wrapper = document.createElement('div');
-                wrapper.id = 'iframe-wrapper-' + currentDate;
+                wrapper.id = 'object-wrapper-' + currentDate;
                 wrapper.style.cssText = 'display:inline-block;vertical-align:top;width:18%;padding:5px;margin:5px 5px 2% 5px;border:1px solid #00bfff;background:#111;text-align:center;border-radius:4px;';
 
                 const header = document.createElement('div');
@@ -218,28 +205,29 @@
                 header.style.cssText = 'color:#00bfff;font-weight:bold;margin-bottom:5px;font-size:14px;';
 
                 const timerDiv = document.createElement('div');
-                timerDiv.id = 'iframe-timer' + currentDate;
+                timerDiv.id = 'object-timer' + currentDate;
                 timerDiv.style.cssText = 'color:white;font-weight:bold;font-size:13px;margin-bottom:5px;';
                 timerDiv.textContent = 'Rozpoczynam';
 
-                const iframe = document.createElement('iframe');
-                iframe.id = iframeId;
-                iframe.src = 'https://gsx2.apple.com/repairs/' + code;
-                iframe.style.cssText = 'width:100%;height:15vh;border:2px solid #00bfff;border-radius:3px;';
+                const objectEl = document.createElement('object');
+                objectEl.id = 'object-' + currentDate;
+                objectEl.data = 'https://gsx2.apple.com/repairs/' + code + '?dummy=1';
+                objectEl.type = 'text/html';
+                objectEl.style.cssText = 'width:100%;height:15vh;border:2px solid #00bfff;border-radius:3px;';
 
                 wrapper.appendChild(header);
                 wrapper.appendChild(timerDiv);
-                wrapper.appendChild(iframe);
+                wrapper.appendChild(objectEl);
 
-                let iframesContainer = document.getElementById('iframes-container');
-                if (!iframesContainer) {
-                    iframesContainer = document.createElement('div');
-                    iframesContainer.id = 'iframes-container';
-                    iframesContainer.style.cssText = 'width:100%;display:flex;flex-wrap:wrap;justify-content:center;margin:10px auto;';
-                    document.body.insertBefore(iframesContainer, statusText.nextSibling);
+                let objectsContainer = document.getElementById('objects-container');
+                if (!objectsContainer) {
+                    objectsContainer = document.createElement('div');
+                    objectsContainer.id = 'objects-container';
+                    objectsContainer.style.cssText = 'width:100%;display:flex;flex-wrap:wrap;justify-content:center;margin:10px auto;';
+                    document.body.appendChild(objectsContainer);
                 }
 
-                iframesContainer.appendChild(wrapper);
+                objectsContainer.appendChild(wrapper);
 
                 let secondsElapsed = 0;
                 const timerInterval = setInterval(() => {
@@ -266,9 +254,11 @@
 
                 const checkInterval = setInterval(() => {
                     try {
-                        const doc = iframe.contentDocument || iframe.contentWindow.document;
+                        // Dostęp do dokumentu załadowanego w <object>
+                        const doc = objectEl.contentDocument || objectEl.getSVGDocument?.() || null;
                         if (!doc) return;
 
+                        // Szukamy statusów na stronie wewnątrz <object>
                         const statusSpan = doc.querySelector('span.objectId.header-4[aria-label="Repair status - Unit Returned Replaced"]');
                         if (statusSpan) {
                             clearInterval(timerInterval);
@@ -310,7 +300,7 @@
                             return;
                         }
                     } catch (e) {
-                        // console.log('iframe access error:', e);
+                        // console.log('object access error:', e);
                     }
                 }, 500);
 
@@ -325,7 +315,7 @@
             fetchAllBtn.disabled = true;
 
             const chunks = [];
-            const chunkSize = 3;
+            const chunkSize = 4;
             let results = [];
 
             for (let i = 0; i < codes.length; i += chunkSize) {
@@ -334,12 +324,12 @@
 
             const delay = ms => new Promise(res => setTimeout(res, ms));
 
-            let iframesContainer = document.getElementById('iframes-container');
-            if (!iframesContainer) {
-                iframesContainer = document.createElement('div');
-                iframesContainer.id = 'iframes-container';
-                iframesContainer.style.cssText = 'width:100%;display:flex;flex-wrap:wrap;justify-content:center;margin:10px auto;';
-                document.body.appendChild(iframesContainer);
+            let objectsContainer = document.getElementById('objects-container');
+            if (!objectsContainer) {
+                objectsContainer = document.createElement('div');
+                objectsContainer.id = 'objects-container';
+                objectsContainer.style.cssText = 'width:100%;display:flex;flex-wrap:wrap;justify-content:center;margin:10px auto;';
+                document.body.appendChild(objectsContainer);
             }
 
             // Progress bar
@@ -361,7 +351,7 @@
             progressBarWrapper.appendChild(progressBar);
             progressBarWrapper.appendChild(progressText);
 
-            iframesContainer.parentNode.insertBefore(progressBarWrapper, iframesContainer);
+            objectsContainer.parentNode.insertBefore(progressBarWrapper, objectsContainer);
 
             let checkedCount = 0;
             const totalCount = codes.length;
@@ -455,7 +445,7 @@
                     let textToCopy = '';
                     for (const [name, codesSet] of Object.entries(messagesByName)) {
                         const codesList = Array.from(codesSet).join('\n');
-                        textToCopy += 'Hej ' + name + ',\nApple CSS poinformowało o naprawach:\n\n' + codesList + '\n\nRzuć proszę na to okiem ^^ \n~nWiadomość wygenerowana automatycznie\n\n';
+                        textToCopy += 'Hej ' + name + ',\nApple CSS poinformowało o naprawach:\n\n' + codesList + '\n\nRzuć proszę na to okiem ^^ \n~Wiadomość wygenerowana automatycznie\n\n';
                     }
 
                     navigator.clipboard.writeText(textToCopy).then(() => {
@@ -497,7 +487,7 @@
                 listLines += '\n';
             }
 
-            const message = 'Cześć,\nPrzesłane naprawy należą kolejno do:\n\n' + listLines + 'Osoby z listy zostały już poinformowane.~nWiadomość wygenerowana automatycznie\n\n';
+            const message = 'Cześć,\nPrzesłane naprawy należą kolejno do:\n\n' + listLines + 'Osoby z listy zostały już poinformowane.~Wiadomość wygenerowana automatycznie\n\n';
 
             navigator.clipboard.writeText(message).then(() => {
                 bulkMsgBtn.textContent = 'Skopiowano!';
@@ -509,6 +499,7 @@
             });
         };
     }
+
 
 // Kontrola wersji alert ---------------------------------------------------------
 (async function() {
@@ -575,14 +566,14 @@
         popup.textContent = `🔔 Aktualizacja dostępna dla ${scriptName}: ${remote} (masz ${current})`;
         Object.assign(popup.style, {
         position: 'fixed',
-        bottom: `${20 + index * 100}px`, 
+        bottom: `${20 + index * 100}px`,
         left: '50%',
         transform: 'translateX(-50%)',
         backgroundColor: '#222',
         color: '#fff',
-        padding: '24px 36px', 
-        borderRadius: '16px', 
-        fontSize: '18px', 
+        padding: '24px 36px',
+        borderRadius: '16px',
+        fontSize: '18px',
         zIndex: 9999 + index,
         boxShadow: '0 0 20px rgba(0,0,0,0.4)',
         cursor: 'pointer',
